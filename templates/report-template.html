@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<!--
+  llm-blackbox-testcase 输出报告模板（单文件长文档）
+  设计系统：blue-professional（cream paper #FDFAE7 + cobalt #1E2BFA）
+  使用规则：
+  - 必须保留：:root 色板、字体声明、组件语法（tag-pill / card-tinted / bar-track /
+    step-circle / callout / metric）、版式节奏。不许改色、不许换字体族。
+  - 必须替换：所有 [方括号] 占位令牌、示例行（class="sample" 的行请整行替换或删除）。
+  - 缺版式时用本设计系统现场设计（同字体、同色板、同组件语法），不要引入新视觉语言。
+  - 表格行数不限，粘性表头已内置；超过 30 行建议加筛选（示例 JS 已附）。
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>[需求名称] · 黑盒测试设计报告</title>
+<style>
+:root{
+  --bg:#FDFAE7;
+  --primary:#1E2BFA;
+  --text:#111111;
+  --text-muted:#6B6B6B;
+  --text-light:#9A9A9A;
+  --accent-light:rgba(30,43,250,.08);
+  --accent-medium:rgba(30,43,250,.15);
+  --border:rgba(30,43,250,.2);
+  --card-bg:rgba(30,43,250,.04);
+  --positive:#059669;
+  --negative:#dc2626;
+  --warn:#B45309;
+  --warn-bg:rgba(180,83,9,.08);
+  --warn-border:rgba(180,83,9,.25);
+  --radius-lg:14px; --radius-md:12px; --radius-sm:10px; --radius-pill:100px;
+  --font-display:'Space Grotesk','Inter',system-ui,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;
+  --font-body:'Inter',system-ui,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font-body);background:var(--bg);color:var(--text);
+  font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1160px;margin:0 auto;padding:0 32px 96px}
+
+/* ---------- 封面 ---------- */
+.cover{position:relative;padding:88px 0 56px;overflow:hidden}
+.cover::after{
+  content:"";position:absolute;top:0;right:0;width:34%;height:100%;
+  background:var(--accent-light);clip-path:polygon(30% 0,100% 0,100% 100%,0% 100%);
+  z-index:0;pointer-events:none;
+}
+.cover-inner{position:relative;z-index:1}
+.eyebrow{
+  font-family:var(--font-display);font-weight:600;font-size:14px;
+  letter-spacing:.08em;color:var(--primary);text-transform:uppercase;
+}
+.accent-line{width:60px;height:4px;background:var(--primary);border-radius:2px;margin:18px 0 22px}
+.cover h1{
+  font-family:var(--font-display);font-weight:700;font-size:clamp(34px,4.6vw,56px);
+  line-height:1.12;letter-spacing:-.02em;max-width:640px;
+}
+.cover .sub{margin-top:16px;font-size:16px;color:var(--text-muted);max-width:600px}
+.cover-meta{margin-top:28px;display:flex;flex-wrap:wrap;gap:10px}
+.cover-dots{position:absolute;right:8%;bottom:24px;display:grid;grid-template-columns:repeat(3,6px);
+  gap:12px;opacity:.25;z-index:1}
+.cover-dots i{width:6px;height:6px;background:var(--primary);border-radius:50%}
+
+/* ---------- 标签 ---------- */
+.tag-pill{
+  display:inline-block;background:var(--accent-light);color:var(--primary);
+  padding:5px 14px;border-radius:var(--radius-pill);
+  font-family:var(--font-display);font-weight:500;font-size:12.5px;white-space:nowrap;
+}
+.tag-pill.solid{background:var(--primary);color:var(--bg)}
+.tag-pill.warn{background:var(--warn-bg);color:var(--warn)}
+
+/* ---------- 导航 ---------- */
+.nav{position:sticky;top:0;z-index:30;background:rgba(253,250,231,.92);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--border)}
+.nav .wrap{padding:0 32px;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+.nav .wrap::-webkit-scrollbar{display:none}
+.nav a{flex:none;padding:13px 12px;font-size:13px;color:var(--text-muted);text-decoration:none;
+  border-bottom:2px solid transparent;white-space:nowrap;font-family:var(--font-display);font-weight:500}
+.nav a:hover{color:var(--primary);border-bottom-color:var(--accent-medium)}
+
+/* ---------- 章节 ---------- */
+section{margin-top:56px;scroll-margin-top:64px}
+.sec-head{display:flex;align-items:center;gap:14px;margin-bottom:8px}
+.step-circle{
+  flex:none;width:40px;height:40px;border-radius:50%;background:var(--primary);color:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-weight:700;font-size:16px;
+}
+.sec-head h2{font-family:var(--font-display);font-weight:600;font-size:clamp(21px,2.6vw,30px);
+  letter-spacing:-.02em}
+.sec-desc{color:var(--text-muted);font-size:14px;margin:0 0 20px 54px;max-width:860px}
+
+/* ---------- 卡片 ---------- */
+.card{background:var(--card-bg);border:1.5px solid var(--border);border-radius:var(--radius-lg);
+  padding:24px 26px}
+.card+.card{margin-top:16px}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:860px){.g2,.g3,.g4{grid-template-columns:1fr}}
+.card h3{font-family:var(--font-display);font-weight:600;font-size:16px;margin-bottom:6px}
+.card p{font-size:13.5px;color:var(--text-muted)}
+
+/* ---------- 指标 ---------- */
+.metric{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-md);
+  padding:18px 20px}
+.metric .v{font-family:var(--font-display);font-weight:700;font-size:32px;line-height:1;
+  color:var(--primary)}
+.metric .l{margin-top:8px;font-family:var(--font-display);font-weight:600;font-size:14px;color:var(--text)}
+.metric .d{margin-top:4px;font-size:12.5px;color:var(--text-muted);line-height:1.5}
+
+/* ---------- 表格 ---------- */
+.tbl-wrap{background:var(--card-bg);border:1.5px solid var(--border);border-radius:var(--radius-lg);
+  overflow:auto;max-height:840px}
+/* 表头筛选控件（配合 .filterable 表格的 JS 使用） */
+.ftoolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 12px 0}
+.ftoolbar select,.ftoolbar input{font-family:var(--font-body);font-size:12.5px;color:var(--text);
+  background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 10px;
+  min-width:130px}
+.ftoolbar input[type=search]{min-width:200px}
+.ftoolbar .fcount{margin-left:auto;font-family:var(--font-display);font-weight:600;font-size:12.5px;
+  color:var(--primary)}
+/* 图片素材缩略图（§0 素材清点） */
+.img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.img-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px}
+.img-card img{width:100%;border-radius:var(--radius-sm);border:1px solid var(--border);display:block}
+.img-card .cap{font-family:var(--font-display);font-weight:600;font-size:12.5px;color:var(--primary);
+  margin:8px 0 4px}
+.img-card .ctx{font-size:11.5px;color:var(--text-muted);line-height:1.5}
+table{border-collapse:separate;border-spacing:0;width:100%;font-size:13.5px}
+thead th{
+  background:var(--accent-light);color:var(--primary);
+  font-family:var(--font-display);font-weight:600;font-size:13px;text-align:left;
+  padding:12px 14px;position:sticky;top:0;z-index:10;white-space:nowrap;
+  border-bottom:1.5px solid var(--border);
+}
+tbody td{padding:11px 14px;border-bottom:1px solid var(--accent-medium);vertical-align:top;
+  line-height:1.6;color:var(--text)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:rgba(30,43,250,.03)}
+td .muted{color:var(--text-muted);font-size:12px}
+td.req{font-family:var(--font-display);font-weight:600;color:var(--primary);white-space:nowrap}
+.ftype{display:inline-block;font-family:var(--font-display);font-weight:500;font-size:11.5px;
+  background:var(--accent-light);color:var(--primary);border-radius:6px;padding:1px 7px;
+  margin:0 6px 4px 0;white-space:nowrap}
+.ftype.sub{background:transparent;border:1px solid var(--border)}
+tr.sample td{opacity:.55;font-style:italic}
+
+/* ---------- 条形图 ---------- */
+.barrow{display:grid;grid-template-columns:200px 1fr 90px;gap:14px;align-items:center;margin-bottom:12px}
+.barrow .lbl{font-size:13px;color:var(--text);text-align:right;font-family:var(--font-display);font-weight:500}
+.bar-track{height:26px;background:var(--accent-light);border-radius:6px;overflow:hidden}
+.bar-fill{height:100%;background:var(--primary);border-radius:6px}
+.barrow .val{font-family:var(--font-display);font-weight:600;font-size:14px;color:var(--primary)}
+@media(max-width:680px){.barrow{grid-template-columns:110px 1fr 72px}}
+
+/* ---------- 高亮块 ---------- */
+.callout{
+  background:var(--accent-light);border-left:4px solid var(--primary);border-radius:var(--radius-md);
+  padding:18px 22px;font-size:14px;color:var(--text);margin-top:20px;line-height:1.7;
+}
+.callout.warn{background:var(--warn-bg);border-left-color:var(--warn)}
+.callout b{font-family:var(--font-display)}
+
+/* ---------- 闸门清单 ---------- */
+.gate{display:flex;gap:14px;align-items:flex-start;padding:14px 18px;border:1px solid var(--border);
+  border-radius:var(--radius-md);background:var(--card-bg)}
+.gate+.gate{margin-top:10px}
+.gate .mark{flex:none;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-family:var(--font-display);font-weight:700;font-size:13px}
+.gate .mark.pass{background:var(--primary);color:var(--bg)}
+.gate .mark.fail{background:var(--negative);color:#fff}
+.gate .mark.todo{background:var(--accent-light);color:var(--primary)}
+.gate h4{font-family:var(--font-display);font-weight:600;font-size:14px;margin-bottom:2px}
+.gate p{font-size:12.5px;color:var(--text-muted)}
+
+footer{margin-top:72px;padding-top:24px;border-top:1px solid var(--border);
+  font-family:var(--font-display);font-size:12.5px;letter-spacing:.05em;color:var(--text-light)}
+</style>
+</head>
+<body>
+
+<!-- ================= 封面 ================= -->
+<header class="cover">
+  <div class="wrap cover-inner">
+    <div class="eyebrow">Black-Box Test Design Report</div>
+    <div class="accent-line"></div>
+    <h1>[需求名称] · 黑盒测试设计报告</h1>
+    <p class="sub">基于大模型的四步推理链路生成：需求点拆解 → 特征建模 → 方法匹配 → 用例生成。共覆盖 [N] 个需求点、[M] 个测试点，使用 [K] 种黑盒方法。</p>
+    <div class="cover-meta">
+      <span class="tag-pill">业务域：[证券 / 银行 / 电商]</span>
+      <span class="tag-pill">生成日期：[YYYY-MM-DD]</span>
+      <span class="tag-pill">生成者：[模型/工具]</span>
+      <span class="tag-pill warn">[待确认] 项：[N] 条</span>
+    </div>
+  </div>
+  <div class="cover-dots"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+</header>
+
+<!-- ================= 导航 ================= -->
+<div class="nav"><div class="wrap">
+  <a href="#s1">映射表</a>
+  <a href="#s2">方法分布</a>
+  <a href="#s3">用例集</a>
+  <a href="#s4">覆盖度</a>
+  <a href="#s5">质量闸门</a>
+  <a href="#s6">待确认与损失</a>
+</div></div>
+
+<div class="wrap">
+
+<!-- ================= 1. 映射表（核心交付） ================= -->
+<section id="s1">
+  <div class="sec-head"><span class="step-circle">1</span><h2>需求点 × 测试点 × 特征 × 方法 映射表</h2></div>
+  <p class="sec-desc">核心交付物。每行一条测试点：特征列含特征类型标签（F1~F18），方法列标注主方法与辅助方法及分工。</p>
+  <div class="tbl-wrap">
+  <table id="mapTbl">
+    <thead><tr>
+      <th style="width:150px">需求点</th>
+      <th style="width:180px">拆分测试点</th>
+      <th>被测对象的特征</th>
+      <th style="width:230px">推荐黑盒测试方法</th>
+    </tr></thead>
+    <tbody>
+      <tr class="sample">
+        <td class="req">R1 [需求点名]<br><span class="muted">[规则类]</span></td>
+        <td>[测试点名]</td>
+        <td><span class="ftype">F1 连续数值区间</span>[特征详情：有效域、无效域、边界、约束的具体描述]</td>
+        <td><b>[主方法]</b> + <span class="muted">[辅助方法]</span><br><span class="muted">[分工一句话]</span></td>
+      </tr>
+      <tr class="sample">
+        <td class="req">R2 [需求点名]</td>
+        <td>[组合爆炸型测试点]</td>
+        <td><span class="ftype">F9 参数组合爆炸</span>[参数 × 取值 = 组合总数，交互强弱]</td>
+        <td><b>正交试验设计</b> + <span class="muted">Pairwise</span><br><span class="muted">[72 组合 → L18，损失说明见 §6]</span></td>
+      </tr>
+      <!-- 正式行从这里开始，删除 sample 行 -->
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ================= 2. 方法分布 ================= -->
+<section id="s2">
+  <div class="sec-head"><span class="step-circle">2</span><h2>方法使用分布</h2></div>
+  <p class="sec-desc">方法覆盖率的直观呈现。若某一方法占比超过 70%，需回到质量闸门 ③ 复核是否存在归一化偷懒。</p>
+  <div class="grid g4">
+    <div class="metric"><div class="v">[N]</div><div class="l">需求点</div><div class="d">已覆盖 [N]/[N]</div></div>
+    <div class="metric"><div class="v">[M]</div><div class="l">测试点</div><div class="d">横跨 [K] 类特征形态</div></div>
+    <div class="metric"><div class="v">[K]</div><div class="l">黑盒方法</div><div class="d">主方法 [K1] 种 + 辅助 [K2] 种</div></div>
+    <div class="metric"><div class="v">[P]%</div><div class="l">无效域用例占比</div><div class="d">阈值 ≥ 30%</div></div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <div class="barrow"><div class="lbl">[方法名]</div><div class="bar-track"><div class="bar-fill" style="width:[X]%"></div></div><div class="val">[N] 测试点</div></div>
+    <div class="barrow"><div class="lbl">[方法名]</div><div class="bar-track"><div class="bar-fill" style="width:[X]%"></div></div><div class="val">[N] 测试点</div></div>
+    <div class="barrow"><div class="lbl">[方法名]</div><div class="bar-track"><div class="bar-fill" style="width:[X]%"></div></div><div class="val">[N] 测试点</div></div>
+  </div>
+</section>
+
+<!-- ================= 3. 用例集 ================= -->
+<section id="s3">
+  <div class="sec-head"><span class="step-circle">3</span><h2>可执行用例集</h2></div>
+  <p class="sec-desc">输入数据具体到值、预期结果唯一可判定。无效域（无效/离点/异常）占比 ≥ 30%。</p>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr>
+      <th style="width:100px">用例ID</th>
+      <th style="width:90px">用例类型</th>
+      <th style="width:130px">测试点</th>
+      <th style="width:130px">输入数据</th>
+      <th>预期结果</th>
+      <th style="width:150px">方法归属</th>
+    </tr></thead>
+    <tbody>
+      <tr class="sample">
+        <td>[TC-001]</td><td><span class="tag-pill">有效</span></td><td>[测试点]</td>
+        <td>[具体值，如 10.20]</td><td>[唯一可判定的预期，含具体文案/状态/数值]</td>
+        <td><span class="muted">[等价类划分]</span></td>
+      </tr>
+      <tr class="sample">
+        <td>[TC-002]</td><td><span class="tag-pill warn">边界·离点</span></td><td>[测试点]</td>
+        <td>[10.21]</td><td>[拒单，提示『超出有效申报范围』]</td>
+        <td><span class="muted">[边界值分析]</span></td>
+      </tr>
+      <!-- 正式行从这里开始 -->
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ================= 4. 覆盖度 ================= -->
+<section id="s4">
+  <div class="sec-head"><span class="step-circle">4</span><h2>覆盖度报告</h2></div>
+  <p class="sec-desc">组合降维必须量化：全组合数、降维后数量、覆盖率、被舍弃的组合。没有损失说明的降维不可信。</p>
+  <div class="card">
+    <div class="barrow"><div class="lbl">[测试点 R6]</div><div class="bar-track"><div class="bar-fill" style="width:100%;opacity:.35"></div></div><div class="val">[72] 全组合</div></div>
+    <div class="barrow"><div class="lbl"></div><div class="bar-track"><div class="bar-fill" style="width:[25]%"></div></div><div class="val">[18] 正交 L18</div></div>
+    <p style="margin-top:14px;font-size:13px;color:var(--text-muted)">[覆盖说明：单因子 100%、两两交互 100%；放弃三因子以上交互，风险判断：……]</p>
+  </div>
+</section>
+
+<!-- ================= 5. 质量闸门 ================= -->
+<section id="s5">
+  <div class="sec-head"><span class="step-circle">5</span><h2>质量闸门核验</h2></div>
+  <p class="sec-desc">8 道闸门的核验结果。标记 ✕ 的闸门必须在交付前闭环。</p>
+  <div class="gate"><span class="mark pass">✓</span><div><h4>① 可追溯性</h4><p>[全部 N 条需求点有原文依据 / X 条缺失]</p></div></div>
+  <div class="gate"><span class="mark pass">✓</span><div><h4>② 无编造</h4><p>[数字型规则抽查结果]</p></div></div>
+  <div class="gate"><span class="mark pass">✓</span><div><h4>③ 特征类型完备</h4><p>[命中 K 类特征，单一类型占比 P%]</p></div></div>
+  <div class="gate"><span class="mark pass">✓</span><div><h4>④ 方法匹配合理</h4><p>[选择理由抽查结果]</p></div></div>
+  <div class="gate"><span class="mark pass">✓</span><div><h4>⑤ 降维有损失说明</h4><p>[N 个需降维测试点均已给出损失说明]</p></div></div>
+  <div class="gate"><span class="mark pass">✓</span><div><h4>⑥ 边界完整性</h4><p>[上点/内点/离点三层覆盖情况]</p></div></div>
+  <div class="gate"><span class="mark pass">✓</span><div><h4>⑦ 无效域占比 ≥ 30%</h4><p>[实际占比 P%]</p></div></div>
+  <div class="gate"><span class="mark pass">✓</span><div><h4>⑧ 预期结果可判定</h4><p>[禁词扫描结果]</p></div></div>
+</section>
+
+<!-- ================= 6. 待确认与损失 ================= -->
+<section id="s6">
+  <div class="sec-head"><span class="step-circle">6</span><h2>待确认项与降维损失</h2></div>
+  <p class="sec-desc">模型不替业务方拍板。规则不确定的一律列在这里，确认前相关用例不得进入执行集。</p>
+  <div class="callout warn"><b>[待确认]</b> [规则描述] —— 影响测试点 [R?.?]，需 [业务方/交易所规则原文] 确认。</div>
+  <div class="callout"><b>降维损失</b> [测试点]：舍弃 [三因子交互] 共 [N] 组合，风险判断 […]，建议 [专项补测/接受]。</div>
+</section>
+
+<footer>llm-blackbox-testcase · [需求名称] · [YYYY-MM-DD]</footer>
+</div>
+
+<script>
+// 表头筛选：给表格加 class="filterable" data-filters="列号:标签,列号:标签" data-search="1" 即生效。
+// 例：<table class="filterable" data-filters="0:需求点,1:用例类型" data-search="1">
+// 交互增强请沿用本设计系统的 tag-pill / accent 变量，不要引入新视觉语言。
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('table.filterable').forEach(function (tbl) {
+    var specs = (tbl.dataset.filters || '').split(',').filter(Boolean).map(function (s) {
+      var p = s.split(':'); return { idx: parseInt(p[0], 10), label: p[1] || s };
+    });
+    if (!specs.length) return;
+    var body = tbl.tBodies[0]; if (!body) return;
+    var rows = Array.prototype.slice.call(body.rows);
+    var host = tbl.closest('.tbl-wrap') || tbl.parentNode;
+    var bar = document.createElement('div'); bar.className = 'ftoolbar';
+    function uniq(i) {
+      var seen = {}, out = [];
+      rows.forEach(function (r) {
+        var c = r.cells[i]; if (!c) return;
+        var t = (c.textContent || '').trim().split(/[\n\r]+/)[0].slice(0, 24);
+        if (t && !seen[t]) { seen[t] = 1; out.push(t); }
+      });
+      return out.sort();
+    }
+    function apply() {
+      var vals = [], kw = (bar.__kw ? bar.__kw.value.trim().toLowerCase() : '');
+      bar.querySelectorAll('select').forEach(function (s) { vals.push(s.value); });
+      var shown = 0;
+      rows.forEach(function (r) {
+        var ok = true, text = (r.textContent || '').toLowerCase();
+        for (var i = 0; i < specs.length; i++) {
+          if (!vals[i]) continue;
+          var c = r.cells[specs[i].idx];
+          if (!c || (c.textContent || '').indexOf(vals[i]) === -1) { ok = false; break; }
+        }
+        if (ok && kw && text.indexOf(kw) === -1) ok = false;
+        r.style.display = ok ? '' : 'none';
+        if (ok) shown++;
+      });
+      bar.__count.textContent = shown + ' / ' + rows.length + ' 条';
+    }
+    specs.forEach(function (sp) {
+      var sel = document.createElement('select');
+      var o0 = document.createElement('option'); o0.value = ''; o0.textContent = '全部' + sp.label;
+      sel.appendChild(o0);
+      uniq(sp.idx).forEach(function (v) {
+        var o = document.createElement('option'); o.value = v; o.textContent = v; sel.appendChild(o);
+      });
+      sel.addEventListener('change', apply); bar.appendChild(sel);
+    });
+    if (tbl.dataset.search === '1') {
+      var kw = document.createElement('input');
+      kw.type = 'search'; kw.placeholder = '关键字过滤（任意列）';
+      kw.addEventListener('input', apply); bar.__kw = kw; bar.appendChild(kw);
+    }
+    var cnt = document.createElement('span'); cnt.className = 'fcount';
+    bar.__count = cnt; bar.appendChild(cnt);
+    host.parentNode.insertBefore(bar, host);
+    apply();
+  });
+});
+</script>
+</body>
+</html>

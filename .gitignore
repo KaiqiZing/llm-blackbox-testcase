@@ -1,0 +1,32 @@
+# ---- local run artifacts (never commit) ----
+assets/
+images/
+manifest.json
+asset-inventory.json
+step*.json
+previews/
+reports/
+*.report.html
+
+# ---- OS / editor noise ----
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+*~
+
+# ---- python ----
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# ---- secrets (defensive; never commit credentials) ----
+.env
+.env.*
+*.pem
+*.key
+credentials*.json
